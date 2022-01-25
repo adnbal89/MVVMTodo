@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="8dp"
-        >
+        android:padding="8dp">
+
         <EditText
+            android:id="@+id/edit_text_task_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Task name"
-            android:id="@+id/edit_text_task_name"
-            android:inputType="text"/>
+            android:inputType="text" />
+
         <CheckBox
+            android:id="@+id/check_box_important"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Important Task"
-            android:id="@+id/check_box_important"/>
+            android:text="Important Task" />
+
         <TextView
             android:id="@+id/text_view_date_created"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:text="Date create:"/>
-
+            tools:text="Date create:" />
 
 
     </LinearLayout>
@@ -37,6 +38,6 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:src="@drawable/ic_check_mark"/>
+        android:src="@drawable/ic_check_mark" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
