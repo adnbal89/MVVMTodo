@@ -14,6 +14,7 @@
         <entry key="app/src/main/res/drawable/ic_search.xml" value="0.228125" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.21197916666666666" />
         <entry key="app/src/main/res/layout/fragment_add_edit_task.xml" value="0.37604166666666666" />
+        <entry key="app/src/main/res/layout/fragment_tasks.xml" value="0.21197916666666666" />
         <entry key="app/src/main/res/layout/fragment_tasts.xml" value="0.21197916666666666" />
         <entry key="app/src/main/res/layout/item_task.xml" value="0.37604166666666666" />
       </map>
