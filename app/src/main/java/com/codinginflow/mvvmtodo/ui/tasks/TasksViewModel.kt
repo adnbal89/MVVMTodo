@@ -4,6 +4,9 @@ import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.codinginflow.mvvmtodo.data.TaskDao
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 
 //constructor --> ()
 //inside viewmodels, we use @ViewModelInject, just the same as the inject.
@@ -15,6 +18,13 @@ import com.codinginflow.mvvmtodo.data.TaskDao
 class TasksViewModel @ViewModelInject constructor(
     private val taskDao: TaskDao
 ) : ViewModel() {
+    //like a mutable live data
+    val searchQuery = MutableStateFlow("")
 
-    val tasks = taskDao.getTasks().asLiveData()
+    //Whenever searchQuery changes, execute this block //"it" is value of current query.
+    private val tasksFlow = searchQuery.flatMapLatest {
+        taskDao.getTasks(it)
+    }
+
+    val tasks = tasksFlow.asLiveData()
 }

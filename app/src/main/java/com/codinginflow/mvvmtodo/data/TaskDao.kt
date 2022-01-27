@@ -8,8 +8,10 @@ interface TaskDao {
 
     //Flow : async stream of Data, so every async task is in the Flow so we do not
     //define this func as suspend.
-    @Query("SELECT * FROM task_table")
-    fun getTasks(): Flow<List<Task>>
+    //name coming from Task field.
+    //search query usage :
+    @Query("SELECT * FROM task_table WHERE name LIKE '%' || :searchQuery || '%' ORDER BY important DESC")
+    fun getTasks(searchQuery: String): Flow<List<Task>>
 
     //kotlin coroutines function. it is like in an other thread than main thread
     //use a background thread.
