@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.codinginflow.mvvmtodo.data.TaskDao
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 
 //constructor --> ()
@@ -20,11 +20,28 @@ class TasksViewModel @ViewModelInject constructor(
 ) : ViewModel() {
     //like a mutable live data
     val searchQuery = MutableStateFlow("")
+    val sortOrder = MutableStateFlow(SortOrder.BY_DATE)
+    val hideCompleted = MutableStateFlow(false)
+
 
     //Whenever searchQuery changes, execute this block //"it" is value of current query.
-    private val tasksFlow = searchQuery.flatMapLatest {
-        taskDao.getTasks(it)
+    //Using combine (inside FLow) to combine options above and apply for the data.
+    //combine works like a dynamic filter. all of options combined.
+    private val tasksFlow = combine(
+        searchQuery,
+        sortOrder,
+        hideCompleted
+        //lambda expression.
+    ) { query, sortOrder, hideCompleted ->
+        Triple(query, sortOrder, hideCompleted)
+    }.flatMapLatest { (query, sortOrder, hideCompleted) ->
+        taskDao.getTasks(query, sortOrder, hideCompleted)
     }
 
     val tasks = tasksFlow.asLiveData()
+}
+
+enum class SortOrder {
+    BY_DATE,
+    BY_NAME
 }
