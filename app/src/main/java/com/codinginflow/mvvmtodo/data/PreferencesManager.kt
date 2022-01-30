@@ -26,21 +26,21 @@ class PreferencesManager @Inject constructor(@ApplicationContext context: Contex
 
     //we can transform the data into something that use for our model.
     val preferencesFlow = dataStore.data
-            .catch { exception ->
-                if (exception is IOException) {
-                    Log.e(TAG, "Error reading preferences", exception)
-                    emit(emptyPreferences())
-                } else {
-                    throw exception
-                }
+        .catch { exception ->
+            if (exception is IOException) {
+                Log.e(TAG, "Error reading preferences", exception)
+                emit(emptyPreferences())
+            } else {
+                throw exception
             }
-            .map { preferences ->
-                val sortOrder = SortOrder.valueOf(
-                        preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.BY_DATE.name
-                )
-                val hideCompleted = preferences[PreferencesKeys.HIDE_COMPLETED] ?: false
-                FilterPreferences(sortOrder, hideCompleted)
-            }
+        }
+        .map { preferences ->
+            val sortOrder = SortOrder.valueOf(
+                preferences[PreferencesKeys.SORT_ORDER] ?: SortOrder.BY_DATE.name
+            )
+            val hideCompleted = preferences[PreferencesKeys.HIDE_COMPLETED] ?: false
+            FilterPreferences(sortOrder, hideCompleted)
+        }
 
     //because it is an IO func
     suspend fun updateSortOrder(sortOrder: SortOrder) {

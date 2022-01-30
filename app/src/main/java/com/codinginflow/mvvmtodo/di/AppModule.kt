@@ -1,7 +1,6 @@
 package com.codinginflow.mvvmtodo.di
 
 import android.app.Application
-import android.app.SharedElementCallback
 import androidx.room.Room
 import com.codinginflow.mvvmtodo.data.TaskDatabase
 import dagger.Module
@@ -47,6 +46,7 @@ object AppModule {
     @Singleton
     fun provideApplicationScope() = CoroutineScope(SupervisorJob())
 }
+
 //Application scope
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
