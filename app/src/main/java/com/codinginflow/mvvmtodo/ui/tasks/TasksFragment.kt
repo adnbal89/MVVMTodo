@@ -9,6 +9,7 @@ import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -16,6 +17,7 @@ import com.codinginflow.mvvmtodo.R
 import com.codinginflow.mvvmtodo.data.SortOrder
 import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.databinding.FragmentTasksBinding
+import com.codinginflow.mvvmtodo.util.exhaustive
 import com.codinginflow.mvvmtodo.util.onQueryTextChanged
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -52,27 +54,31 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
                 //The fragment doesn't need to hold data -> separation of concerns.
                 //for example, when the screen rotated or fragment destroyed, the data is lost and need to be recreated. (leads to memory leak)
                 //viewModel will be in charge to manage data for fragment.
+            }
+            //Implementing swipe to delete functionality.
+            ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
+                0,
+                ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
+            ) {
+                override fun onMove(
+                    recyclerView: RecyclerView,
+                    viewHolder: RecyclerView.ViewHolder,
+                    target: RecyclerView.ViewHolder
+                ): Boolean {
+                    return false
+                }
 
-                //Implementing swipe to delete functionality.
-                ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(
-                    0,
-                    ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-                ) {
-                    override fun onMove(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                        target: RecyclerView.ViewHolder
-                    ): Boolean {
-                        return false
-                    }
+                override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                    val task = taskAdapter.currentList[viewHolder.adapterPosition]
+                    //forwarding deleting functionality to view model. because fragment is not responsible for any actions on the data
+                    viewModel.onTaskSwiped(task)
+                }
+                //attach recycler view and itemtouchhelper together.
+            }).attachToRecyclerView(recyclerViewTasks)
 
-                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                        val task = taskAdapter.currentList[viewHolder.adapterPosition]
-                        //forwarding deleting functionality to view model. because fragment is not responsible for any actions on the data
-                        viewModel.onTaskSwiped(task)
-                    }
-                    //attach recycler view and itemtouchhelper together.
-                }).attachToRecyclerView(recyclerViewTasks)
+            //just delegate functionality to viewModel
+            fabAddTask.setOnClickListener {
+                viewModel.onAddNewTaskClick()
             }
         }
 
@@ -91,7 +97,25 @@ class TasksFragment : Fragment(R.layout.fragment_tasks), TasksAdapter.OnItemClic
                                 viewModel.onUndoDeleteClick(event.task)
                             }.show()
                     }
-                }
+                    is TasksViewModel.TasksEvent.NavigateToAddTaskScreen -> {
+                        //coming from the nav_graph
+                        //this method is compile time safe, because when other fragment expects an argument, then compiler warns us
+                        val action =
+                            TasksFragmentDirections.actionTasksFragmentToAddEditTaskFragment(
+                                null,
+                                "New Task"
+                            )
+                        findNavController().navigate(action)
+                    }
+                    is TasksViewModel.TasksEvent.NavigateToEditTaskScreen -> {
+                        val action =
+                            TasksFragmentDirections.actionTasksFragmentToAddEditTaskFragment(
+                                event.task,
+                                "Edit Task"
+                            )
+                        findNavController().navigate(action)
+                    }
+                }.exhaustive
 
             }
         }
