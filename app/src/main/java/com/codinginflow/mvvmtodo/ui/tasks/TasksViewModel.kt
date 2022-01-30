@@ -6,6 +6,7 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.codinginflow.mvvmtodo.data.PreferencesManager
 import com.codinginflow.mvvmtodo.data.SortOrder
+import com.codinginflow.mvvmtodo.data.Task
 import com.codinginflow.mvvmtodo.data.TaskDao
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
@@ -20,8 +21,8 @@ import kotlinx.coroutines.launch
 //LiveData lifecycle aware.
 //
 class TasksViewModel @ViewModelInject constructor(
-        private val taskDao: TaskDao,
-        private val preferencesManager: PreferencesManager
+    private val taskDao: TaskDao,
+    private val preferencesManager: PreferencesManager
 ) : ViewModel() {
     //like a mutable live data
     val searchQuery = MutableStateFlow("")
@@ -33,15 +34,17 @@ class TasksViewModel @ViewModelInject constructor(
     //Using combine (inside FLow) to combine options above and apply for the data.
     //combine works like a dynamic filter. all of options combined.
     private val tasksFlow = combine(
-            searchQuery,
-            preferencesFlow
+        searchQuery,
+        preferencesFlow
 
-            //lambda expression.
+        //lambda expression.
     ) { query, filterPreferences ->
         Pair(query, filterPreferences)
     }.flatMapLatest { (query, filterPreferences) ->
         taskDao.getTasks(query, filterPreferences.sortOrder, filterPreferences.hideCompleted)
     }
+
+    val tasks = tasksFlow.asLiveData()
 
     fun onSortOrderSelected(sortOrder: SortOrder) = viewModelScope.launch {
         preferencesManager.updateSortOrder(sortOrder)
@@ -51,6 +54,13 @@ class TasksViewModel @ViewModelInject constructor(
         preferencesManager.updateHideCompleted(hideCompleted)
     }
 
-    val tasks = tasksFlow.asLiveData()
+    fun onTaskSelected(task: Task) {
+
+    }
+
+    //because update is a suspend function, so we need a coroutine
+    fun onTaskCheckedChanged(task: Task, isChecked: Boolean) = viewModelScope.launch {
+        taskDao.update(task.copy(completed = isChecked))
+    }
 }
 

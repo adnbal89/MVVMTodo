@@ -7,6 +7,7 @@ import kotlinx.android.parcel.Parcelize
 import java.text.DateFormat
 
 //this class is a data class
+//note that properties are immutable on purpose.
 @Entity(tableName = "task_table")
 @Parcelize
 data class Task(
